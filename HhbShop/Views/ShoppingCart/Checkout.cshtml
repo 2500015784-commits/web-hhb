@@ -1,0 +1,38 @@
+@model CheckoutInput
+@{
+    ViewBag.Title = "Đặt hàng";
+    var cart = (CartPage)ViewBag.Cart;
+}
+<section class="shell section">
+    <div class="crumb"><a href="@Url.Action("Index")">Giỏ hàng</a><span>›</span><span>Đặt hàng</span></div>
+    <h1>Đặt hàng</h1>
+    <div class="purchase-grid">
+        <div class="panel-card">
+            <h2>Thông tin giao hàng</h2>
+            @using (Html.BeginForm("Checkout", "ShoppingCart", FormMethod.Post, new { @class = "stack" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(x => x.Token)
+                @Html.ValidationSummary(true)
+                <div class="form-grid">
+                    <div class="field">@Html.LabelFor(x => x.CustomerName) @Html.TextBoxFor(x => x.CustomerName, new { autocomplete = "name", maxlength = 100, required = "required" }) @Html.ValidationMessageFor(x => x.CustomerName)</div>
+                    <div class="field">@Html.LabelFor(x => x.CustomerPhone) @Html.TextBoxFor(x => x.CustomerPhone, new { type = "tel", autocomplete = "tel", required = "required" }) @Html.ValidationMessageFor(x => x.CustomerPhone)</div>
+                </div>
+                <div class="field">@Html.LabelFor(x => x.CustomerEmail) @Html.TextBoxFor(x => x.CustomerEmail, new { type = "email", autocomplete = "email", maxlength = 150 }) @Html.ValidationMessageFor(x => x.CustomerEmail)</div>
+                <div class="field">@Html.LabelFor(x => x.CustomerAddress) @Html.TextBoxFor(x => x.CustomerAddress, new { autocomplete = "street-address", maxlength = 250, required = "required" }) @Html.ValidationMessageFor(x => x.CustomerAddress)</div>
+                <div class="field">@Html.LabelFor(x => x.Note) @Html.TextAreaFor(x => x.Note, new { rows = 3, maxlength = 350 }) @Html.ValidationMessageFor(x => x.Note)</div>
+                <div class="payment-method"><strong>Thanh toán khi nhận hàng</strong><span>Trả tiền khi đơn được giao.</span></div>
+                <button class="button button-primary" type="submit">Xác nhận đặt hàng</button>
+            }
+        </div>
+        <aside class="summary">
+            <h2>Đơn hàng của bạn</h2>
+            @foreach (var item in cart.Lines)
+            {
+                <div class="summary-line"><span>@item.Product.Name × @item.Quantity</span><strong>@ShopText.Money(item.Total)</strong></div>
+            }
+            <div class="summary-line"><span>Phí giao hàng</span><span>0 ₫</span></div>
+            <div class="summary-line grand-total"><span>Tổng cộng</span><strong>@ShopText.Money(cart.Total)</strong></div>
+        </aside>
+    </div>
+</section>

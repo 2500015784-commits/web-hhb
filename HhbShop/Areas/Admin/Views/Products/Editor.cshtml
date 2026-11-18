@@ -1,0 +1,30 @@
+@model ProductInput
+@{
+    ViewBag.Title = Model.Id > 0 ? "Sửa sản phẩm" : "Thêm sản phẩm";
+}
+<div class="crumb"><a href="@Url.Action("Index")">Sản phẩm</a><span>›</span><span>@ViewBag.Title</span></div>
+<div class="titlebar"><h1>@ViewBag.Title</h1></div>
+<section class="panel-card">
+@using (Html.BeginForm("Save", "Products", FormMethod.Post, new { enctype = "multipart/form-data", @class = "stack" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(x => x.Id)
+    @Html.HiddenFor(x => x.Version)
+    @Html.ValidationSummary(true)
+    <div class="field">@Html.LabelFor(x => x.Name) @Html.TextBoxFor(x => x.Name, new { maxlength = 120, required = "required" }) @Html.ValidationMessageFor(x => x.Name)</div>
+    <div class="form-grid">
+        <div class="field">@Html.LabelFor(x => x.Price)<input type="number" name="Price" id="Price" min="1000" max="100000000" step="1" value="@Model.Price.ToString("0", System.Globalization.CultureInfo.InvariantCulture)" required /> @Html.ValidationMessageFor(x => x.Price)</div>
+        <div class="field">@Html.LabelFor(x => x.Stock) @Html.TextBoxFor(x => x.Stock, new { type = "number", min = 0, max = 100000, required = "required" }) @Html.ValidationMessageFor(x => x.Stock)</div>
+    </div>
+    <div class="field">@Html.LabelFor(x => x.CategoryId) @Html.DropDownListFor(x => x.CategoryId, (SelectList)ViewBag.Categories, "Chọn danh mục", new { required = "required" }) @Html.ValidationMessageFor(x => x.CategoryId)</div>
+    <div class="field">@Html.LabelFor(x => x.Description) @Html.TextAreaFor(x => x.Description, new { rows = 4, maxlength = 1000, required = "required" }) @Html.ValidationMessageFor(x => x.Description)</div>
+    if (!string.IsNullOrEmpty(Model.ImagePath))
+    {
+        <img class="editor-thumb" src="@Url.Content(Model.ImagePath)" alt="Ảnh sản phẩm hiện tại" width="90" height="100" />
+    }
+    <div class="field"><label for="imageFile">Ảnh sản phẩm</label><input type="file" name="imageFile" id="imageFile" accept="image/jpeg,image/png" /><small>Ảnh chụp thật JPG hoặc PNG, tối đa 5 MB.</small>@Html.ValidationMessage("imageFile")</div>
+    <label class="check">@Html.CheckBoxFor(x => x.IsActive) Đang hiển thị trên cửa hàng</label>
+    <label class="check">@Html.CheckBoxFor(x => x.Featured) Nổi bật trên trang chủ</label>
+    <div class="table-actions"><button class="button button-primary" type="submit">Lưu sản phẩm</button><a class="button button-outline" href="@Url.Action("Index")">Quay lại</a></div>
+}
+</section>

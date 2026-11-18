@@ -1,0 +1,18 @@
+@model System.Collections.Generic.IEnumerable<Order>
+<div class="table-frame">
+    <table class="data-table">
+        <thead><tr><th scope="col">Mã đơn</th><th scope="col">Khách hàng</th><th scope="col">Ngày đặt</th><th scope="col">Tổng tiền</th><th scope="col">Trạng thái</th></tr></thead>
+        <tbody>
+        @foreach (var order in Model)
+        {
+            <tr>
+                <td><a class="table-link" href="@Url.Action("Details", "Orders", new { id = order.Id })">@ShopText.OrderCode(order.Id)</a></td>
+                <td>@order.CustomerName</td>
+                <td>@ShopText.Time(order.CreatedUtc)</td>
+                <td>@ShopText.Money(order.Total)</td>
+                <td><span class="state state-@order.Status.ToLowerInvariant()">@ShopText.Statuses[order.Status]</span></td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

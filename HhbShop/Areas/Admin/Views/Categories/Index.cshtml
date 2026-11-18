@@ -1,0 +1,36 @@
+@model System.Collections.Generic.IEnumerable<Category>
+@{ ViewBag.Title = "Danh mục"; }
+<div class="titlebar"><h1>Danh mục</h1></div>
+<div class="panel-card">
+    <h2>Thêm danh mục</h2>
+    @using (Html.BeginForm("Save", "Categories", FormMethod.Post, new { @class = "catalog-form" }))
+    {
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="0" />
+        <div class="field search-field"><label for="add-category">Tên danh mục</label><input name="name" id="add-category" maxlength="80" required /></div>
+        <button class="button button-primary" type="submit">Thêm mới</button>
+    }
+</div>
+<div class="panel-card categories-admin">
+    <h2>Danh mục hiện có</h2>
+    @if (!Model.Any()) { <p>Chưa có danh mục nào.</p> }
+    @foreach (var c in Model)
+    {
+        <div class="category-edit">
+            @using (Html.BeginForm("Save", "Categories", FormMethod.Post, new { @class = "category-controls" }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@c.Id" />
+                <label class="sr-only" for="category-@c.Id">Tên danh mục @c.Name</label>
+                <input type="text" id="category-@c.Id" name="name" value="@c.Name" maxlength="80" required />
+                <button class="button button-outline button-small" type="submit">Lưu</button>
+            }
+            @using (Html.BeginForm("Delete", "Categories", FormMethod.Post, new { data_confirm = "Bạn muốn xóa danh mục này?" }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@c.Id" />
+                <button class="link-button danger" type="submit">Xóa</button>
+            }
+        </div>
+    }
+</div>

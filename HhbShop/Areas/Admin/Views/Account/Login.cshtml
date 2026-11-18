@@ -1,0 +1,15 @@
+@model LoginInput
+@{ ViewBag.Title = "Đăng nhập"; }
+<section class="panel-card login-card">
+    <p class="eyebrow">Quản trị cửa hàng</p>
+    <h1>Đăng nhập</h1>
+    @using (Html.BeginForm("Login", "Account", FormMethod.Post, new { @class = "stack" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(x => x.ReturnUrl)
+        @Html.ValidationSummary()
+        <div class="field">@Html.LabelFor(x => x.UserName) @Html.TextBoxFor(x => x.UserName, new { autocomplete = "username", required = "required" })</div>
+        <div class="field">@Html.LabelFor(x => x.Password) @Html.PasswordFor(x => x.Password, new { autocomplete = "current-password", required = "required" })</div>
+        <button class="button button-primary button-block" type="submit">Đăng nhập</button>
+    }
+</section>

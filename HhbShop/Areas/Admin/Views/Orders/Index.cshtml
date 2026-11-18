@@ -1,0 +1,12 @@
+@model System.Collections.Generic.IEnumerable<Order>
+@{ ViewBag.Title = "Đơn hàng"; string filter = ViewBag.Filter; }
+<div class="titlebar"><h1>Đơn hàng</h1></div>
+<div class="category-nav">
+    <a class="@(string.IsNullOrEmpty(filter) ? "selected" : "")" href="@Url.Action("Index")">Tất cả</a>
+    @foreach (var status in ShopText.Statuses)
+    {
+        <a class="@(filter == status.Key ? "selected" : "")" href="@Url.Action("Index", new { status = status.Key })">@status.Value</a>
+    }
+</div>
+@if (!Model.Any()) { <div class="empty"><h2>Chưa có đơn hàng</h2></div> }
+else { @Html.Partial("_OrderTable", Model) }

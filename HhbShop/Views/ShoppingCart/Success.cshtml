@@ -1,0 +1,11 @@
+@model int
+@{ ViewBag.Title = "Đặt hàng thành công"; }
+<section class="shell section">
+    <div class="empty success-page">
+        <div class="success-mark" aria-hidden="true">✓</div>
+        <h1>Đặt hàng thành công</h1>
+        <p>Mã đơn <strong>@ShopText.OrderCode(Model)</strong> đã được ghi nhận.</p>
+        <p>Đơn đang chờ xác nhận. Bạn sẽ thanh toán khi nhận hàng.</p>
+        <a class="button button-primary" href="@Url.Action("Index", "Product")">Tiếp tục mua sắm</a>
+    </div>
+</section>

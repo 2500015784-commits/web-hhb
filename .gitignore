@@ -1,0 +1,11 @@
+.vs/
+bin/
+obj/
+*.user
+*.suo
+*.log
+TestResults/
+HhbShop/Uploads/
+HhbShop/App_Data/
+HhbShop/connectionStrings.local.config
+HhbShop/packages.lock.json

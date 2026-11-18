@@ -1,0 +1,12 @@
+@model Product
+<article class="product-card">
+    <a class="product-photo" href="@Url.Action("Details", "Product", new { id = Model.Id })">
+        <img src="@Url.Content(Model.ImagePath)" alt="@Model.Name" loading="lazy" width="360" height="420" />
+        @if (Model.Stock == 0) { <span class="photo-label">Hết hàng</span> }
+    </a>
+    <div class="product-text">
+        <p class="product-category">@Model.Category.Name</p>
+        <h3><a href="@Url.Action("Details", "Product", new { id = Model.Id })">@Model.Name</a></h3>
+        <p class="product-price">@ShopText.Money(Model.Price)</p>
+    </div>
+</article>

@@ -1,0 +1,8 @@
+@model CatalogPage
+<nav class="category-nav" aria-label="Danh mục sản phẩm">
+    <a class="@(!Model.CategoryId.HasValue ? "selected" : "")" href="@Url.Action("Index", new { q = Model.Query, sort = Model.Sort })">Tất cả</a>
+    @foreach (var category in Model.Categories)
+    {
+        <a class="@(category.Id == Model.CategoryId ? "selected" : "")" href="@Url.Action("Index", new { categoryId = category.Id, q = Model.Query, sort = Model.Sort })">@category.Name</a>
+    }
+</nav>

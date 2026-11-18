@@ -1,0 +1,50 @@
+@{
+    bool loggedIn = User.IsInRole("Admin");
+    string current = ViewContext.RouteData.Values["controller"] as string;
+}
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>@ViewBag.Title · Quản trị HHB Studio</title>
+    <link rel="stylesheet" href="@Url.Content("~/Content/bootstrap.min.css")" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/site.css")" />
+</head>
+<body class="admin-body">
+<a class="skip-link" href="#main">Chuyển đến nội dung</a>
+<header class="admin-header">
+    <div class="shell admin-top">
+        <a class="wordmark" href="@Url.Action("Index", "Dashboard")"><span>HHB</span> STUDIO<span class="mark-dot">.</span></a>
+        <div class="admin-actions">
+            <a class="text-link" href="@Url.Action("Index", "Home", new { area = "" })">Xem cửa hàng ↗</a>
+            @if (loggedIn)
+            {
+                using (Html.BeginForm("Logout", "Account", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <button class="button button-small button-outline" type="submit">Đăng xuất</button>
+                }
+            }
+        </div>
+    </div>
+</header>
+<div class="shell @(loggedIn ? "admin-grid" : "login-grid")">
+    @if (loggedIn)
+    {
+        <nav class="admin-nav" aria-label="Điều hướng quản trị">
+            <a class="@(current == "Dashboard" ? "selected" : "")" href="@Url.Action("Index", "Dashboard")">Tổng quan</a>
+            <a class="@(current == "Products" ? "selected" : "")" href="@Url.Action("Index", "Products")">Sản phẩm</a>
+            <a class="@(current == "Categories" ? "selected" : "")" href="@Url.Action("Index", "Categories")">Danh mục</a>
+            <a class="@(current == "Orders" ? "selected" : "")" href="@Url.Action("Index", "Orders")">Đơn hàng</a>
+        </nav>
+    }
+    <main id="main" class="admin-main">
+        @Html.Partial("~/Views/Shared/_Flash.cshtml")
+        @RenderBody()
+    </main>
+</div>
+<script src="@Url.Content("~/Content/site.js")" defer></script>
+</body>
+</html>

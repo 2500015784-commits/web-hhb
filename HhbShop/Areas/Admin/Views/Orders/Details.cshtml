@@ -1,0 +1,48 @@
+@model Order
+@{
+    ViewBag.Title = ShopText.OrderCode(Model.Id);
+    var statuses = ShopText.NextStatuses(Model.Status).ToList();
+}
+<div class="crumb"><a href="@Url.Action("Index")">Đơn hàng</a><span>›</span><span>@ShopText.OrderCode(Model.Id)</span></div>
+<div class="titlebar"><h1>@ShopText.OrderCode(Model.Id)</h1><span class="state state-@Model.Status.ToLowerInvariant()">@ShopText.Statuses[Model.Status]</span></div>
+<div class="purchase-grid">
+    <section class="panel-card">
+        <h2>Sản phẩm trong đơn</h2>
+        <div class="table-frame">
+        <table class="data-table">
+            <thead><tr><th scope="col">Sản phẩm</th><th scope="col">Đơn giá</th><th scope="col">SL</th><th scope="col">Thành tiền</th></tr></thead>
+            <tbody>
+            @foreach (var line in Model.Lines)
+            {
+                <tr><td>@line.ProductName</td><td>@ShopText.Money(line.Price)</td><td>@line.Quantity</td><td>@ShopText.Money(line.Price * line.Quantity)</td></tr>
+            }
+            </tbody>
+        </table>
+        </div>
+        <div class="summary-line grand-total"><span>Tổng cộng</span><strong>@ShopText.Money(Model.Total)</strong></div>
+        @if (statuses.Count > 0)
+        {
+            using (Html.BeginForm("Status", "Orders", FormMethod.Post, new { @class = "catalog-form" }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+                <input type="hidden" name="version" value="@Convert.ToBase64String(Model.Version)" />
+                <div class="field"><label for="status">Trạng thái mới</label><select name="status" id="status">
+                    @foreach (var status in statuses) { <option value="@status">@ShopText.Statuses[status]</option> }
+                </select></div>
+                <button class="button button-primary" type="submit">Cập nhật</button>
+            }
+        }
+    </section>
+    <aside class="summary">
+        <h2>Thông tin giao hàng</h2>
+        <dl class="customer-data">
+            <dt>Họ và tên</dt><dd>@Model.CustomerName</dd>
+            <dt>Điện thoại</dt><dd>@Model.CustomerPhone</dd>
+            @if (!string.IsNullOrEmpty(Model.CustomerEmail)) { <dt>Email</dt><dd>@Model.CustomerEmail</dd> }
+            <dt>Địa chỉ</dt><dd>@Model.CustomerAddress</dd>
+            @if (!string.IsNullOrEmpty(Model.Note)) { <dt>Ghi chú</dt><dd>@Model.Note</dd> }
+            <dt>Ngày đặt</dt><dd>@ShopText.Time(Model.CreatedUtc)</dd>
+        </dl>
+    </aside>
+</div>

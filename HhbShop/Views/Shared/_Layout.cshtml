@@ -1,0 +1,50 @@
+@{
+    var cart = Session["Cart"] as System.Collections.Generic.Dictionary<int, int>;
+    int count = cart == null ? 0 : cart.Values.Sum();
+    string current = ViewContext.RouteData.Values["controller"] as string;
+    string action = ViewContext.RouteData.Values["action"] as string;
+}
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="HHB Studio. Thời trang, giày dép và phụ kiện cho mỗi ngày." />
+    <title>@ViewBag.Title · HHB Studio</title>
+    <link rel="stylesheet" href="@Url.Content("~/Content/bootstrap.min.css")" />
+    <link rel="stylesheet" href="@Url.Content("~/Content/site.css")" />
+</head>
+<body>
+<a class="skip-link" href="#main">Chuyển đến nội dung</a>
+<header class="site-header">
+    <div class="shell topnav">
+        <a class="wordmark" href="@Url.Action("Index", "Home")" aria-label="HHB Studio — Trang chủ"><span>HHB</span> STUDIO<span class="mark-dot">.</span></a>
+        <nav class="site-nav" aria-label="Điều hướng chính">
+            <a class="@(current == "Home" && action == "Index" ? "current" : "")" href="@Url.Action("Index", "Home")">Trang chủ</a>
+            <a class="@(current == "Product" ? "current" : "")" href="@Url.Action("Index", "Product")">Sản phẩm</a>
+            <a class="@(current == "Home" && action == "About" ? "current" : "")" href="@Url.Action("About", "Home")">Giới thiệu</a>
+        </nav>
+        <div class="site-actions">
+            <a class="search-link" href="@Url.Action("Index", "Product")#tim-san-pham" aria-label="Tìm sản phẩm"><span class="icon-search" aria-hidden="true"></span></a>
+            <a class="cart-link" href="@Url.Action("Index", "ShoppingCart")"><span class="icon-bag" aria-hidden="true"></span><span>Giỏ hàng</span><b>@count</b></a>
+        </div>
+    </div>
+</header>
+<main id="main">
+    @Html.Partial("_Flash")
+    @RenderBody()
+</main>
+<footer class="site-footer">
+    <div class="shell footer-inner">
+        <div><a class="wordmark" href="@Url.Action("Index", "Home")"><span>HHB</span> STUDIO<span class="mark-dot">.</span></a><p>Thời trang ứng dụng cho mỗi ngày.</p></div>
+        <nav aria-label="Liên kết cuối trang">
+            <a href="@Url.Action("Index", "Product")">Sản phẩm</a>
+            <a href="@Url.Action("About", "Home")">Về HHB Studio</a>
+            <a href="@Url.Action("Index", "Dashboard", new { area = "Admin" })">Quản trị</a>
+        </nav>
+        <small>© @DateTime.Now.Year HHB Studio<br />Đồ án Lập trình Web</small>
+    </div>
+</footer>
+<script src="@Url.Content("~/Content/site.js")" defer></script>
+</body>
+</html>

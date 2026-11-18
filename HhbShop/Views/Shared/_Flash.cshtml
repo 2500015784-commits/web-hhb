@@ -1,0 +1,3 @@
+@{ var success = TempData["Success"]; var error = TempData["Error"]; }
+@if (success != null) { <div class="shell notice-wrap"><div class="notice notice-success" role="status">@success</div></div> }
+@if (error != null) { <div class="shell notice-wrap"><div class="notice notice-error" role="alert">@error</div></div> }

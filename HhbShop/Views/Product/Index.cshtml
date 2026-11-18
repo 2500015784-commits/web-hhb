@@ -1,0 +1,44 @@
+@model CatalogPage
+@{
+    var category = Model.Categories.FirstOrDefault(c => c.Id == Model.CategoryId);
+    ViewBag.Title = category == null ? "Sản phẩm" : category.Name;
+}
+<section class="shell section">
+    <div class="crumb"><a href="@Url.Action("Index", "Home")">Trang chủ</a><span>›</span><span>Sản phẩm</span></div>
+    <div class="titlebar">
+        <h1>@ViewBag.Title</h1>
+        <span>@Model.Total sản phẩm</span>
+    </div>
+    @Html.Partial("_Categories", Model)
+    <form class="catalog-form" method="get" action="@Url.Action("Index")" id="tim-san-pham">
+        @if (Model.CategoryId.HasValue) { <input type="hidden" name="categoryId" value="@Model.CategoryId" /> }
+        <div class="field search-field"><label for="q">Tìm sản phẩm</label><input type="search" name="q" id="q" maxlength="100" value="@Model.Query" placeholder="Nhập tên sản phẩm" /></div>
+        <div class="field"><label for="sort">Sắp xếp</label>
+            @Html.DropDownList("sort", new SelectList(new[] {
+                new SelectListItem { Value = "featured", Text = "Nổi bật" }, new SelectListItem { Value = "newest", Text = "Mới nhất" },
+                new SelectListItem { Value = "price-asc", Text = "Giá thấp đến cao" }, new SelectListItem { Value = "price-desc", Text = "Giá cao đến thấp" }
+            }, "Value", "Text", Model.Sort), new { id = "sort" })
+        </div>
+        <button class="button button-primary" type="submit">Áp dụng</button>
+    </form>
+    @if (Model.Products.Count == 0)
+    {
+        <div class="empty"><h2>Không tìm thấy sản phẩm</h2><p>Hãy thử từ khóa hoặc danh mục khác.</p><a class="button button-outline" href="@Url.Action("Index")">Xem tất cả sản phẩm</a></div>
+    }
+    else
+    {
+        <div class="product-grid">
+            @foreach (var product in Model.Products) { @Html.Partial("_ProductCard", product) }
+        </div>
+    }
+    @if (Model.Pages > 1)
+    {
+        <nav class="pager-links" aria-label="Phân trang">
+            @for (int i = Math.Max(1, Model.Page - 2); i <= Math.Min(Model.Pages, Model.Page + 2); i++)
+            {
+                if (i == Model.Page) { <span aria-current="page">@i</span> }
+                else { <a href="@Url.Action("Index", new { categoryId = Model.CategoryId, q = Model.Query, sort = Model.Sort, page = i })">@i</a> }
+            }
+        </nav>
+    }
+</section>
