@@ -2,6 +2,9 @@ USE [master];
 GO
 IF DB_ID(N'HhbStudio') IS NULL CREATE DATABASE [HhbStudio];
 GO
+IF EXISTS (SELECT 1 FROM sys.databases WHERE name = N'HhbStudio' AND is_auto_close_on = 1)
+    ALTER DATABASE [HhbStudio] SET AUTO_CLOSE OFF;
+GO
 USE [HhbStudio];
 GO
 SET XACT_ABORT ON;
@@ -59,6 +62,27 @@ CREATE TABLE dbo.AdminUser (
     PasswordHash VARCHAR(64) NOT NULL,
     Salt VARCHAR(32) NOT NULL
 );
+
+IF OBJECT_ID(N'dbo.Customer', N'U') IS NULL
+CREATE TABLE dbo.Customer (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Name NVARCHAR(100) NOT NULL,
+    Email NVARCHAR(150) NOT NULL UNIQUE,
+    PasswordHash VARCHAR(64) NOT NULL,
+    Salt VARCHAR(32) NOT NULL
+);
+
+IF COL_LENGTH(N'dbo.Order', N'CustomerId') IS NULL
+    ALTER TABLE dbo.[Order] ADD CustomerId INT NULL
+        CONSTRAINT FK_Order_Customer REFERENCES dbo.Customer(Id);
+
+IF COL_LENGTH(N'dbo.Order', N'PaymentMethod') IS NULL
+    ALTER TABLE dbo.[Order] ADD PaymentMethod VARCHAR(12) NOT NULL
+        CONSTRAINT DF_Order_PaymentMethod DEFAULT ('COD') WITH VALUES
+        CONSTRAINT CK_Order_PaymentMethod CHECK (PaymentMethod IN ('COD','Simulation'));
+
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE object_id = OBJECT_ID(N'dbo.[Order]') AND name = N'IX_Order_CustomerId')
+    EXEC(N'CREATE INDEX IX_Order_CustomerId ON dbo.[Order] (CustomerId, Id DESC)');
 
 IF OBJECT_ID(N'dbo.SchemaSeed', N'U') IS NULL
 CREATE TABLE dbo.SchemaSeed (Id NVARCHAR(60) PRIMARY KEY);

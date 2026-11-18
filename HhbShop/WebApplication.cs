@@ -1,6 +1,7 @@
 using System;
 using System.Data.Entity;
-using System.Text;
+using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Security.Principal;
 using System.Threading;
 using System.Web;
@@ -16,6 +17,7 @@ namespace HhbShop
         protected void Application_Start()
         {
             Database.SetInitializer<ShopDb>(null);
+            GlobalFilters.Filters.Add(new DatabaseUnavailableFilter());
             ValueProviderFactories.Factories.Insert(0, new VndPriceValueProviderFactory());
             AreaRegistration.RegisterAllAreas();
             RouteTable.Routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
@@ -28,10 +30,36 @@ namespace HhbShop
         {
             var identity = Context.User?.Identity as FormsIdentity;
             if (identity == null) return;
-            if (identity.Ticket.UserData != "Admin") return;
-            var principal = new GenericPrincipal(identity, new[] { "Admin" });
+            var role = identity.Ticket.UserData;
+            if (role != "Admin" && role != "Customer") return;
+            var principal = new GenericPrincipal(identity, new[] { role });
             Context.User = principal;
             Thread.CurrentPrincipal = principal;
+        }
+    }
+
+    internal sealed class DatabaseUnavailableFilter : FilterAttribute, IExceptionFilter
+    {
+        public void OnException(ExceptionContext context)
+        {
+            if (context.ExceptionHandled) return;
+            for (var error = context.Exception; error != null; error = error.InnerException)
+            {
+                if (!(error is SqlException sql)) continue;
+                switch (sql.Number)
+                {
+                    case -2: case -1: case 2: case 26: case 53: case 64:
+                    case 233: case 701: case 1205: case 10054: case 10060:
+                        Trace.TraceError("HHB Studio database unavailable: {0}", context.Exception);
+                        var response = context.HttpContext.Response;
+                        response.StatusCode = 503;
+                        response.TrySkipIisCustomErrors = true;
+                        response.Cache.SetNoStore();
+                        context.Result = new ViewResult { ViewName = "~/Views/Shared/DatabaseUnavailable.cshtml" };
+                        context.ExceptionHandled = true;
+                        return;
+                }
+            }
         }
     }
 

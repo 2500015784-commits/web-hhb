@@ -23,6 +23,14 @@
             <a class="@(current == "Home" && action == "Index" ? "current" : "")" href="@Url.Action("Index", "Home")">Trang chủ</a>
             <a class="@(current == "Product" ? "current" : "")" href="@Url.Action("Index", "Product")">Sản phẩm</a>
             <a class="@(current == "Home" && action == "About" ? "current" : "")" href="@Url.Action("About", "Home")">Giới thiệu</a>
+            @if (User.IsInRole("Customer"))
+            {
+                <a class="@(current == "Orders" ? "current" : "")" href="@Url.Action("Index", "Orders")">Đơn của tôi</a>
+            }
+            else
+            {
+                <a class="@(current == "CustomerAccount" ? "current" : "")" href="@Url.Action("Login", "CustomerAccount")">Đăng nhập</a>
+            }
         </nav>
         <div class="site-actions">
             <a class="search-link" href="@Url.Action("Index", "Product")#tim-san-pham" aria-label="Tìm sản phẩm"><span class="icon-search" aria-hidden="true"></span></a>

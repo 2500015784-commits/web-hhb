@@ -9,6 +9,7 @@ namespace HhbShop.Controllers
     public abstract class ShopController : Controller
     {
         protected readonly ShopDb Db = new ShopDb();
+        protected int CustomerId => User.IsInRole("Customer") && int.TryParse(User.Identity.Name, out var id) ? id : 0;
         protected override void Dispose(bool disposing)
         {
             if (disposing) Db.Dispose();

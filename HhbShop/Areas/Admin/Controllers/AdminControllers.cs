@@ -3,8 +3,6 @@ using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
-using System.Security.Cryptography;
-using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
 using HhbShop.Controllers;
@@ -41,14 +39,7 @@ namespace HhbShop.Areas.Admin.Controllers
 
             var username = input.UserName.Trim();
             var account = Db.AdminUsers.AsNoTracking().SingleOrDefault(u => u.UserName == username);
-            var salt = account != null ? Convert.FromBase64String(account.Salt) : new byte[16];
-            var expected = account != null ? Convert.FromBase64String(account.PasswordHash) : new byte[32];
-            byte[] actual;
-            using (var kdf = new Rfc2898DeriveBytes(input.Password, salt, 210000, HashAlgorithmName.SHA256))
-                actual = kdf.GetBytes(32);
-            int difference = 0;
-            for (int i = 0; i < actual.Length; i++) difference |= actual[i] ^ expected[i];
-            if (account == null || difference != 0)
+            if (!ShopAuthentication.Check(input.Password, account?.Salt, account?.PasswordHash))
             {
                 Session[attemptsKey] = attempts + 1;
                 ModelState.AddModelError("", "Tên đăng nhập hoặc mật khẩu chưa đúng.");
@@ -57,13 +48,7 @@ namespace HhbShop.Areas.Admin.Controllers
 
             Session.Remove(attemptsKey);
             Session.Remove(attemptTimeKey);
-            var issued = DateTime.Now;
-            var ticket = new FormsAuthenticationTicket(1, account.UserName, issued, issued.AddMinutes(30),
-                false, "Admin", FormsAuthentication.FormsCookiePath);
-            Response.Cookies.Add(new HttpCookie(FormsAuthentication.FormsCookieName, FormsAuthentication.Encrypt(ticket))
-            {
-                HttpOnly = true, Secure = Request.IsSecureConnection, SameSite = SameSiteMode.Lax, Path = ticket.CookiePath
-            });
+            ShopAuthentication.SignIn(HttpContext, account.UserName, "Admin");
             if (Url.IsLocalUrl(input.ReturnUrl)) return Redirect(input.ReturnUrl);
             return RedirectToAction("Index", "Dashboard");
         }

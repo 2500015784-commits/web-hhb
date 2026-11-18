@@ -1,0 +1,28 @@
+@model Order
+@{ ViewBag.Title = "Hóa đơn " + ShopText.OrderCode(Model.Id); }
+<section class="shell section invoice-page">
+    <div class="crumb"><a href="@Url.Action("Index")">Đơn của tôi</a><span>›</span><span>@ShopText.OrderCode(Model.Id)</span></div>
+    <article class="panel-card invoice">
+        <div class="titlebar">
+            <div><p class="eyebrow">HHB Studio</p><h1>Hóa đơn</h1><p><strong>@ShopText.OrderCode(Model.Id)</strong> · @ShopText.Time(Model.CreatedUtc)</p></div>
+            <button class="button button-outline" type="button" data-print-invoice>In hóa đơn</button>
+        </div>
+        <div class="form-grid invoice-info">
+            <div><h2>Giao hàng</h2><p><strong>@Model.CustomerName</strong><br />@Model.CustomerAddress<br />@Model.CustomerPhone</p></div>
+            <div><h2>Thanh toán</h2><p><strong>@ShopText.PaymentStatus(Model)</strong><br />@ShopText.PaymentName(Model.PaymentMethod)<br />Đơn hàng: @ShopText.Statuses[Model.Status]</p></div>
+        </div>
+        <div class="table-frame">
+            <table class="data-table invoice-lines">
+                <thead><tr><th scope="col">Sản phẩm</th><th scope="col">Đơn giá</th><th scope="col">SL</th><th scope="col">Thành tiền</th></tr></thead>
+                <tbody>
+                @foreach (var line in Model.Lines.OrderBy(x => x.Id))
+                {
+                    <tr><td>@line.ProductName</td><td>@ShopText.Money(line.Price)</td><td>@line.Quantity</td><td>@ShopText.Money(line.Price * line.Quantity)</td></tr>
+                }
+                </tbody>
+                <tfoot><tr><th colspan="3" scope="row">Tổng cộng</th><td><strong>@ShopText.Money(Model.Total)</strong></td></tr></tfoot>
+            </table>
+        </div>
+    </article>
+    <a class="text-link invoice-back" href="@Url.Action("Index", "Product")">Tiếp tục mua sắm</a>
+</section>

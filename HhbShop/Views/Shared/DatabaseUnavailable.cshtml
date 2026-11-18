@@ -1,0 +1,13 @@
+@{ ViewBag.Title = "Kết nối tạm gián đoạn"; Layout = "~/Views/Shared/_Layout.cshtml"; }
+<section class="shell section">
+    <div class="empty">
+        <h1>Kết nối tạm gián đoạn</h1>
+        <p>Cửa hàng chưa đọc được dữ liệu. Bạn có thể quay lại giỏ hàng sau ít phút.</p>
+        @if (User.IsInRole("Customer"))
+        {
+            <p>Nếu vừa xác nhận thanh toán, hãy kiểm tra mục Đơn của tôi trước khi đặt lại.</p>
+            <a class="button button-outline" href="@Url.Action("Index", "Orders", new { area = "" })">Đơn của tôi</a>
+        }
+        <a class="button button-primary" href="@Url.Action("Index", "ShoppingCart", new { area = "" })">Về giỏ hàng</a>
+    </div>
+</section>

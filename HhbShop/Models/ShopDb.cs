@@ -10,12 +10,17 @@ namespace HhbShop.Models
 {
     public sealed class ShopDb : DbContext
     {
-        public ShopDb() : base("name=ShopDb") => Configuration.LazyLoadingEnabled = false;
+        public ShopDb() : base("name=ShopDb")
+        {
+            Configuration.LazyLoadingEnabled = false;
+            Database.CommandTimeout = 15;
+        }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<AdminUser> AdminUsers { get; set; }
+        public DbSet<Customer> Customers { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder builder)
         {
@@ -68,6 +73,8 @@ namespace HhbShop.Models
         public string Note { get; set; }
         public decimal Total { get; set; }
         public string Status { get; set; }
+        public int? CustomerId { get; set; }
+        public string PaymentMethod { get; set; }
         [Timestamp] public byte[] Version { get; set; }
         public ICollection<OrderDetail> Lines { get; set; } = new List<OrderDetail>();
     }
@@ -93,11 +100,28 @@ namespace HhbShop.Models
         public string Salt { get; set; }
     }
 
+    [Table("Customer")]
+    public class Customer
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string PasswordHash { get; set; }
+        public string Salt { get; set; }
+    }
+
     public static class ShopText
     {
         public static string Money(decimal value) => value.ToString("#,0", CultureInfo.GetCultureInfo("vi-VN")) + " ₫";
         public static string Time(DateTime utc) => utc.AddHours(7).ToString("HH:mm dd/MM/yyyy");
         public static string OrderCode(int id) => "HHB-" + id.ToString("D5");
+        public static string PaymentName(string method) => method == "Simulation" ? "Thanh toán mô phỏng" : "Thanh toán khi nhận hàng";
+        public static string PaymentStatus(Order order)
+        {
+            if (order.Status == "Cancelled") return "Đã hủy";
+            if (order.PaymentMethod == "Simulation") return "Đã thanh toán (mô phỏng)";
+            return order.Status == "Completed" ? "Đã thu tiền khi giao" : "Chưa thu tiền";
+        }
         public static readonly IReadOnlyDictionary<string, string> Statuses = new Dictionary<string, string>
         {
             ["Pending"] = "Chờ xác nhận", ["Processing"] = "Đang xử lý", ["Completed"] = "Hoàn tất", ["Cancelled"] = "Đã hủy"

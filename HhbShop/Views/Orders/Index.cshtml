@@ -1,0 +1,29 @@
+@model System.Collections.Generic.IReadOnlyList<Order>
+@{ ViewBag.Title = "Đơn của tôi"; }
+<section class="shell section customer-orders">
+    <div class="titlebar">
+        <h1>Đơn của tôi</h1>
+        @using (Html.BeginForm("Logout", "CustomerAccount", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            <button class="button button-outline" type="submit">Đăng xuất</button>
+        }
+    </div>
+    @if (Model.Count == 0)
+    {
+        <div class="empty"><p>Bạn chưa có đơn hàng.</p><a class="button button-primary" href="@Url.Action("Index", "Product")">Xem sản phẩm</a></div>
+    }
+    else
+    {
+        <ul class="order-history">
+            @foreach (var order in Model)
+            {
+                <li class="panel-card">
+                    <div><strong>@ShopText.OrderCode(order.Id)</strong><div class="muted">@ShopText.Time(order.CreatedUtc)</div></div>
+                    <div><strong>@ShopText.Money(order.Total)</strong><div class="muted">@ShopText.PaymentStatus(order)</div></div>
+                    <a class="text-link" href="@Url.Action("Invoice", new { id = order.Id })">Xem hóa đơn</a>
+                </li>
+            }
+        </ul>
+    }
+</section>

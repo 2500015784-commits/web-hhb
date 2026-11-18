@@ -62,6 +62,7 @@ namespace HhbShop.Controllers
             return RedirectToAction("Index");
         }
 
+        [HttpGet, CustomerOnly]
         public ActionResult Checkout()
         {
             var page = BuildPage();
@@ -70,15 +71,23 @@ namespace HhbShop.Controllers
                 TempData["Error"] = "Hãy kiểm tra lại sản phẩm trong giỏ trước khi đặt hàng.";
                 return RedirectToAction("Index");
             }
+            var customer = Db.Customers.Find(CustomerId);
+            if (customer == null) return HttpNotFound();
             if (!(Session["CheckoutToken"] is Guid)) Session["CheckoutToken"] = Guid.NewGuid();
-            return CheckoutView(new CheckoutInput { Token = (Guid)Session["CheckoutToken"] }, page);
+            return CheckoutView(new CheckoutInput
+            {
+                Token = (Guid)Session["CheckoutToken"], CustomerName = customer.Name,
+                CustomerEmail = customer.Email, PaymentMethod = "Simulation"
+            }, page);
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
+        [HttpPost, CustomerOnly, ValidateAntiForgeryToken]
         public ActionResult Checkout(CheckoutInput input)
         {
-            if (Session["LastCheckoutToken"] is Guid last && last == input.Token)
-                return RedirectToAction("Success");
+            var customerId = CustomerId;
+            var priorId = Db.Orders.Where(o => o.CheckoutToken == input.Token && o.CustomerId == customerId)
+                .Select(o => (int?)o.Id).SingleOrDefault();
+            if (priorId.HasValue) return RedirectToAction("Invoice", "Orders", new { id = priorId.Value });
             if (!(Session["CheckoutToken"] is Guid token) || token != input.Token)
             {
                 TempData["Error"] = "Phiên đặt hàng đã hết hạn. Vui lòng mở lại trang đặt hàng.";
@@ -105,6 +114,7 @@ namespace HhbShop.Controllers
                 var order = new Order
                 {
                     CheckoutToken = token, CreatedUtc = DateTime.UtcNow, Status = "Pending",
+                    CustomerId = customerId, PaymentMethod = input.PaymentMethod,
                     CustomerName = input.CustomerName.Trim(), CustomerPhone = input.CustomerPhone.Trim(),
                     CustomerEmail = input.CustomerEmail?.Trim(), CustomerAddress = input.CustomerAddress.Trim(),
                     Note = input.Note?.Trim()
@@ -129,18 +139,10 @@ namespace HhbShop.Controllers
                     TempData["Error"] = "Sản phẩm vừa được cập nhật. Hãy thử đặt hàng lại.";
                     return RedirectToAction("Index");
                 }
-                Session["LastOrderId"] = order.Id;
-                Session["LastCheckoutToken"] = token;
                 Session.Remove("CheckoutToken");
                 Cart.Clear();
-                return RedirectToAction("Success");
+                return RedirectToAction("Invoice", "Orders", new { id = order.Id });
             }
-        }
-
-        public ActionResult Success()
-        {
-            if (!(Session["LastOrderId"] is int id)) return RedirectToAction("Index");
-            return View(id);
         }
 
         private ViewResult CheckoutView(CheckoutInput input, CartPage page)
@@ -152,6 +154,7 @@ namespace HhbShop.Controllers
         private CartPage BuildPage()
         {
             var keys = Cart.Keys.ToList();
+            if (keys.Count == 0) return new CartPage { Lines = Array.Empty<CartLine>() };
             var products = Db.Products.AsNoTracking().Where(p => keys.Contains(p.Id)).ToDictionary(p => p.Id);
             return new CartPage
             {

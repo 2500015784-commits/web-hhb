@@ -21,8 +21,15 @@
                 <div class="field">@Html.LabelFor(x => x.CustomerEmail) @Html.TextBoxFor(x => x.CustomerEmail, new { type = "email", autocomplete = "email", maxlength = 150 }) @Html.ValidationMessageFor(x => x.CustomerEmail)</div>
                 <div class="field">@Html.LabelFor(x => x.CustomerAddress) @Html.TextBoxFor(x => x.CustomerAddress, new { autocomplete = "street-address", maxlength = 250, required = "required" }) @Html.ValidationMessageFor(x => x.CustomerAddress)</div>
                 <div class="field">@Html.LabelFor(x => x.Note) @Html.TextAreaFor(x => x.Note, new { rows = 3, maxlength = 350 }) @Html.ValidationMessageFor(x => x.Note)</div>
-                <div class="payment-method"><strong>Thanh toán khi nhận hàng</strong><span>Trả tiền khi đơn được giao.</span></div>
-                <button class="button button-primary" type="submit">Xác nhận đặt hàng</button>
+                <fieldset class="payment-method">
+                    <legend>Phương thức thanh toán</legend>
+                    <label>@Html.RadioButtonFor(x => x.PaymentMethod, "Simulation", new { id = "pay-simulation" }) Thanh toán mô phỏng</label>
+                    <span>Dùng để thử luồng thanh toán và xuất hóa đơn. Không thu tiền thật.</span>
+                    <label>@Html.RadioButtonFor(x => x.PaymentMethod, "COD", new { id = "pay-cod" }) Thanh toán khi nhận hàng (COD)</label>
+                    <span>Thanh toán cho đơn khi nhận hàng.</span>
+                    @Html.ValidationMessageFor(x => x.PaymentMethod)
+                </fieldset>
+                <button class="button button-primary" type="submit">Xác nhận và tạo hóa đơn</button>
             }
         </div>
         <aside class="summary">

@@ -57,6 +57,8 @@ namespace HhbShop.Models
         public string CustomerAddress { get; set; }
         [StringLength(350), Display(Name = "Ghi chú (không bắt buộc)")]
         public string Note { get; set; }
+        [Required, RegularExpression("^(COD|Simulation)$", ErrorMessage = "Chọn phương thức thanh toán hợp lệ.")]
+        public string PaymentMethod { get; set; }
         public Guid Token { get; set; }
     }
 
@@ -86,6 +88,25 @@ namespace HhbShop.Models
         [Required(ErrorMessage = "Nhập mật khẩu."), StringLength(256), Display(Name = "Mật khẩu")]
         public string Password { get; set; }
         public string ReturnUrl { get; set; }
+    }
+
+    public class CustomerLoginInput
+    {
+        [Required(ErrorMessage = "Nhập email."), EmailAddress(ErrorMessage = "Email không hợp lệ."), StringLength(150)]
+        public string Email { get; set; }
+        [Required(ErrorMessage = "Nhập mật khẩu."), StringLength(256), Display(Name = "Mật khẩu")]
+        public string Password { get; set; }
+        public string ReturnUrl { get; set; }
+    }
+
+    public class RegisterInput : CustomerLoginInput
+    {
+        [Required(ErrorMessage = "Nhập họ và tên."), StringLength(100), Display(Name = "Họ và tên")]
+        public string Name { get; set; }
+        [MinLength(12, ErrorMessage = "Mật khẩu phải có ít nhất 12 ký tự.")]
+        [Compare("Password", ErrorMessage = "Hai mật khẩu chưa khớp."), Display(Name = "Nhập lại mật khẩu")]
+        [Required(ErrorMessage = "Nhập lại mật khẩu."), StringLength(256)]
+        public string ConfirmPassword { get; set; }
     }
 
     public class DashboardPage
